@@ -1,17 +1,33 @@
+import { db } from "./data";
 import { serverEnvironment } from "./env";
 import { getYnabApi } from "./ynabApi";
 
 const setup = async () => {
   console.log("Setting up...", { serverEnvironment });
-  return {
-    ynabApi: getYnabApi(serverEnvironment.YNAP_PAT),
-  };
+  const ynabApi = getYnabApi(serverEnvironment.YNAP_PAT);
+  return { ynabApi };
 };
 
 const main = async () => {
   const { ynabApi } = await setup();
 
   const user = await ynabApi.user.getUser();
+
+  if (serverEnvironment.NODE_ENV === "development") {
+    console.log("updating user...");
+    db.user.upsert({
+      where: { ynabId: user.data.user.id },
+      create: {
+        ynabId: user.data.user.id,
+        // 1 min from now
+        preferredUtcTime: new Date(Date.now() + 60000).toISOString(),
+      },
+      update: {
+        // 1 min from now
+        preferredUtcTime: new Date(Date.now() + 60000).toISOString(),
+      },
+    });
+  }
 
   console.log("User", user.data.user);
 
