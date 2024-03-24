@@ -17,6 +17,8 @@ model User {
   id               Int      @id @default(autoincrement())
   ynabId           String   @unique
   preferredUtcTime DateTime
+  email            String   @unique
+  emailVerified    Boolean
 
   @@index([preferredUtcTime])
 }

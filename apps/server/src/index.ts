@@ -4,6 +4,7 @@ import { getOrCreateServices, type Services } from "./services";
 import { JobRunner } from "./jobs/jobs";
 import { seedInitialUser } from "./seed";
 import { Process } from "./services/status";
+import { TestEmailSender } from "./sender/testEmailSender";
 
 const main = async (services: Services) => {
   if (services.env.NODE_ENV === "development") {
@@ -13,20 +14,27 @@ const main = async (services: Services) => {
   /**
    * Query all user jobs every minute
    */
-  const jobRunner = new JobRunner(services);
+  const jobRunner = new JobRunner(
+    services,
+    new TestEmailSender({
+      user: services.env.EMAIL_USER,
+      pass: services.env.EMAIL_PASS,
+      services,
+    })
+  );
 
   // set delay to the next whole minute
   const delay = 60000 - (Date.now() % 60000);
   services.logger.debug(`delaying ${delay}ms`);
   setTimeout(() => {
     if (services.status.ready()) {
-      jobRunner.queryUserJobs(new Date());
+      jobRunner.run();
     } else {
       services.logger.warn("services not ready, not starting periodic job");
     }
     setInterval(() => {
       if (services.status.ready()) {
-        jobRunner.queryUserJobs(new Date());
+        jobRunner.run();
       } else {
         services.logger.warn("services not ready, not starting periodic job");
       }

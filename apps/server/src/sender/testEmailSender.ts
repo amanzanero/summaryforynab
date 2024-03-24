@@ -8,7 +8,7 @@ export class TestEmailSender implements Sender {
   _transporter: nodemailer.Transporter;
   _logger: Logger;
 
-  constructor(user: string, pass: string, services: Services) {
+  constructor({ user, pass, services }: { user: string; pass: string; services: Services }) {
     this._logger = services.logger.child({ module: "TestEmailSender" });
     this._transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -22,13 +22,13 @@ export class TestEmailSender implements Sender {
     });
   }
 
-  send = async (userId: string, message: string) => {
-    this._logger.debug(`Sending email to ${userId} with message: ${message}`);
+  send = async (email: string, message: string) => {
+    this._logger.debug(`sending email to ${email}`);
     await this._transporter.sendMail({
-      from: "manzanero.andrew@gmail.com",
-      to: "info@amanzanero.com",
+      from: "Summary for YNAB <manzanero.andrew@gmail.com>",
+      to: email,
       subject: "Hello from Nodemailer",
-      text: "This is a test email sent using Nodemailer.",
+      text: `This is a test email sent using Nodemailer. ${message}`,
     });
   };
 }

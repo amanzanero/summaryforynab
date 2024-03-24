@@ -13,6 +13,8 @@ export const seedInitialUser = async (services: Services) => {
     create: {
       ynabId: user.data.user.id,
       preferredUtcTime: now,
+      email: "info@amanzanero.com",
+      emailVerified: true,
     },
     update: {
       // 1 min from now

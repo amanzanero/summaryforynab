@@ -1,3 +1,3 @@
 export interface Sender {
-  send(userId: string, message: string): Promise<void>;
+  send(email: string, message: string): Promise<void>;
 }

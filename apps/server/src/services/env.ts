@@ -19,17 +19,21 @@ const loadDotEnvIntoProcess = () => {
 loadDotEnvIntoProcess();
 
 const envSchema = z.object({
-  NODE_ENV: z.string().default("production"),
-  YNAP_PAT: z.string(),
-  PORT: z.string().default("8080"),
   AXIOM_TOKEN: z.string(),
+  EMAIL_USER: z.string(),
+  EMAIL_PASS: z.string(),
+  NODE_ENV: z.string().default("production"),
+  PORT: z.string().default("8080"),
+  YNAP_PAT: z.string(),
 });
 
 const envServer = envSchema.safeParse({
-  NODE_ENV: process.env.NODE_ENV,
-  YNAP_PAT: process.env.YNAP_PAT,
-  PORT: process.env.PORT,
   AXIOM_TOKEN: process.env.AXIOM_TOKEN,
+  EMAIL_USER: process.env.EMAIL_USER,
+  EMAIL_PASS: process.env.EMAIL_PASS,
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  YNAP_PAT: process.env.YNAP_PAT,
 });
 
 if (!envServer.success) {
