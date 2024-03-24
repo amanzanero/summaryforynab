@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild index.ts --bundle --sourcemap --platform=node --packages=external --format=esm --outdir=dist",
+    "lint": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate"
   },
@@ -13,6 +15,7 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "esbuild": "^0.20.2",
     "prisma": "5.11.0",
     "typescript": "^5.3.3"
   }

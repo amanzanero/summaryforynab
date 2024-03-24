@@ -152,6 +152,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      esbuild:
+        specifier: ^0.20.2
+        version: 0.20.2
       prisma:
         specifier: 5.11.0
         version: 5.11.0
