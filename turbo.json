@@ -5,7 +5,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^db:generate", "^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", "node_modules/.prisma/client/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -15,12 +15,15 @@
       "cache": false,
       "persistent": true
     },
-    "db:generate": {},
+    "db:generate": {
+      "cache": false
+    },
     "db:push": {
       "cache": false
     }, 
     "start": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["^build"]
     }
   }
 }
