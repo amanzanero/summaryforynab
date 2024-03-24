@@ -14,8 +14,12 @@ const setup: () => Promise<Services> = async () => {
   return { db, env: serverEnvironment, logger: makeLogger(), ynabApi };
 };
 
+const services = await setup();
+
 const main = async (services: Services) => {
-  await seedInitialUser(services);
+  if (services.env.NODE_ENV === "development") {
+    await seedInitialUser(services);
+  }
 
   /**
    * Query all user jobs every minute
@@ -34,8 +38,6 @@ const main = async (services: Services) => {
   services.logger.info("periodic job started");
 };
 
-const services = await setup();
-
 const app = express();
 
 app.get("/health", (req, res) => {
@@ -49,7 +51,7 @@ const server = app.listen(serverEnvironment.PORT, () => {
   services.logger.info(`Server listening on port ${serverEnvironment.PORT}`);
 });
 
-var shutdown = false;
+let shutdown = false;
 const cleanup = async () => {
   if (shutdown) {
     services.logger.info("Already shutting down...");
