@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as nodemailer from "nodemailer";
 import type { Sender } from "./sender";
 

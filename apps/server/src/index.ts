@@ -1,5 +1,5 @@
 import express from "express";
-import { db } from "./services/data";
+import { createPrismaClient } from "./services/data";
 import { serverEnvironment } from "./services/env";
 import { getYnabApi } from "./services/ynabApi";
 import { makeLogger } from "./services/logger";
@@ -8,6 +8,7 @@ import { queryUserJobs } from "./jobs/jobs";
 import { seedInitialUser } from "./seed";
 
 const setup: () => Promise<Services> = async () => {
+  const db = createPrismaClient();
   await db.$connect();
   const ynabApi = getYnabApi(serverEnvironment.YNAP_PAT);
   return { db, env: serverEnvironment, logger: makeLogger(), ynabApi };
@@ -57,7 +58,7 @@ const cleanup = async () => {
   shutdown = true;
   services.logger.info("cleaning up...");
   await Promise.allSettled([
-    db.$disconnect().then(() => services.logger.info("disconnected from db")),
+    services.db.$disconnect().then(() => services.logger.info("disconnected from db")),
     new Promise<void>((resolve, reject) =>
       server.close((err) => {
         if (err) {
