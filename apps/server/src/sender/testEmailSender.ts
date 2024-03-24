@@ -1,5 +1,5 @@
 import * as nodemailer from "nodemailer";
-import { Sender } from "./sender";
+import type { Sender } from "./sender";
 
 export class TestEmailSender implements Sender {
   _emails = new Map<string, string>();

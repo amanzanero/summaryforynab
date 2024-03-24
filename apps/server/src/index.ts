@@ -1,55 +1,74 @@
-import { db } from "./data";
-import { serverEnvironment } from "./env";
-import { getYnabApi } from "./ynabApi";
+import express from "express";
+import { db } from "./services/data";
+import { serverEnvironment } from "./services/env";
+import { getYnabApi } from "./services/ynabApi";
+import { makeLogger } from "./services/logger";
+import type { Services } from "./services";
+import { queryUserJobs } from "./jobs/jobs";
+import { seedInitialUser } from "./seed";
 
-const setup = async () => {
-  console.log("Setting up...", { serverEnvironment });
+const setup: () => Promise<Services> = async () => {
+  await db.$connect();
   const ynabApi = getYnabApi(serverEnvironment.YNAP_PAT);
-  return { ynabApi };
+  return { db, env: serverEnvironment, logger: makeLogger(), ynabApi };
 };
 
-const main = async () => {
-  const { ynabApi } = await setup();
+const main = async (services: Services) => {
+  await seedInitialUser(services);
 
-  const user = await ynabApi.user.getUser();
+  /**
+   * Query all user jobs every minute
+   */
 
-  if (serverEnvironment.NODE_ENV === "development") {
-    console.log("updating user...");
-    db.user.upsert({
-      where: { ynabId: user.data.user.id },
-      create: {
-        ynabId: user.data.user.id,
-        // 1 min from now
-        preferredUtcTime: new Date(Date.now() + 60000).toISOString(),
-      },
-      update: {
-        // 1 min from now
-        preferredUtcTime: new Date(Date.now() + 60000).toISOString(),
-      },
-    });
+  // set delay to the next whole minute
+  const delay = 60000 - (Date.now() % 60000);
+  services.logger.debug(`delaying ${delay}ms`);
+  setTimeout(() => {
+    queryUserJobs(new Date(), services);
+    setInterval(() => {
+      queryUserJobs(new Date(), services);
+    }, 60000);
+  }, delay);
+
+  services.logger.info("periodic job started");
+};
+
+const services = await setup();
+
+const app = express();
+
+app.get("/health", (req, res) => {
+  services.logger.info("responding OK to health check");
+  res.send("ok");
+});
+
+main(services);
+
+const server = app.listen(serverEnvironment.PORT, () => {
+  services.logger.info(`Server listening on port ${serverEnvironment.PORT}`);
+});
+
+var shutdown = false;
+const cleanup = async () => {
+  if (shutdown) {
+    services.logger.info("Already shutting down...");
+    return;
   }
-
-  console.log("User", user.data.user);
-
-  // const now = new Date();
-  // const seconds = now.getSeconds();
-  // const milliseconds = now.getMilliseconds();
-  // const delay = (60 - seconds) * 1000 - milliseconds;
-
-  // setTimeout(() => {
-  //   setInterval(() => {
-  //     console.log("It is exactly :00 seconds!");
-  //     console.log(`The time is ${new Date().toLocaleTimeString()}`);
-  //   }, 60000);
-  // }, delay);
-};
-
-const cleanup = () => {
-  console.log("Cleaning up...");
+  shutdown = true;
+  services.logger.info("cleaning up...");
+  await Promise.allSettled([
+    db.$disconnect().then(() => services.logger.info("disconnected from db")),
+    new Promise<void>((resolve, reject) =>
+      server.close((err) => {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      })
+    ).then(() => services.logger.info("http server closed")),
+  ]);
   process.exit(0);
 };
 
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
-
-main();

@@ -21,11 +21,15 @@ loadDotEnvIntoProcess();
 const envSchema = z.object({
   NODE_ENV: z.string().default("production"),
   YNAP_PAT: z.string(),
+  PORT: z.string().default("8080"),
+  AXIOM_TOKEN: z.string(),
 });
 
 const envServer = envSchema.safeParse({
   NODE_ENV: process.env.NODE_ENV,
   YNAP_PAT: process.env.YNAP_PAT,
+  PORT: process.env.PORT,
+  AXIOM_TOKEN: process.env.AXIOM_TOKEN,
 });
 
 if (!envServer.success) {
@@ -35,3 +39,5 @@ if (!envServer.success) {
 }
 
 export const serverEnvironment = envServer.data;
+
+export type ServerEnvironment = z.infer<typeof envSchema>;

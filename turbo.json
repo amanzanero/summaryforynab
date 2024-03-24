@@ -15,10 +15,11 @@
       "cache": false,
       "persistent": true
     },
-    "db:generate": {
-      "cache": false
-    },
+    "db:generate": {},
     "db:push": {
+      "cache": false
+    }, 
+    "start": {
       "cache": false
     }
   }
