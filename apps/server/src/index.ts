@@ -23,9 +23,17 @@ const main = async (services: Services) => {
     })
   );
 
-  // set delay to the next whole minute
-  const delay = 60000 - (Date.now() % 60000);
-  services.logger.debug(`delaying ${delay}ms`);
+  // set delay to the next whole minute in dev, next whole hour in prod
+  let delay: number;
+  let timeout: number;
+  if (services.env.NODE_ENV === "development") {
+    delay = 60000 - (Date.now() % 60000);
+    timeout = 60000;
+  } else {
+    delay = 3600000 - (Date.now() % 3600000);
+    timeout = 3600000;
+  }
+  services.logger.debug(`delaying ${delay / 1000}s`);
   setTimeout(() => {
     if (services.status.ready()) {
       jobRunner.run();
@@ -38,7 +46,7 @@ const main = async (services: Services) => {
       } else {
         services.logger.warn("services not ready, not starting periodic job");
       }
-    }, 60000);
+    }, timeout);
   }, delay);
 
   services.logger.info("periodic job started");
