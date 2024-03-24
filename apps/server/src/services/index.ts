@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
+import type { api } from "ynab";
 import { Logger as WinstonLogger } from "winston";
-import { api } from "ynab";
 import type { ServerEnvironment } from "./env";
 import type { ProcessStatus } from "./status";
 import { createPrismaClient } from "./data";
@@ -12,7 +12,7 @@ import { ProcessStatusImpl } from "./status";
 export interface Services {
   db: PrismaClient;
   logger: WinstonLogger;
-  ynabApi: api;
+  ynabApi(token: string): api;
   env: ServerEnvironment;
   status: ProcessStatus;
 }
@@ -24,12 +24,11 @@ export const getOrCreateServices: () => Promise<Services> = async () => {
   }
   const db = createPrismaClient();
   await db.$connect();
-  const ynabApi = getYnabApi(serverEnvironment.YNAP_PAT);
   const services = {
     db,
     env: serverEnvironment,
     logger: makeLogger(),
-    ynabApi,
+    ynabApi: getYnabApi,
     status: new ProcessStatusImpl(serverEnvironment),
   };
   _services = services;

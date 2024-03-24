@@ -1,3 +1,4 @@
+import type { User } from "@repo/data";
 import { nanoid } from "nanoid";
 import { Logger as WinstonLogger } from "winston";
 import type { Sender } from "src/sender/sender";
@@ -28,8 +29,14 @@ export class JobRunner {
         preferredUtcTime: copiedTime,
       },
     });
-    this.logger.debug("users to notify", { count: usersToNotify.length });
+    this.logger.info("users to notify", { count: usersToNotify.length });
     return usersToNotify;
+  };
+
+  private generateMessageForUser = async (user: User) => {
+    const api = this.servcies.ynabApi(this.servcies.env.YNAP_PAT);
+    const budget = await api.budgets.getBudgets();
+    return `Hello ${user.email}, you have ${budget.data.budgets.length} budgets`;
   };
 
   run = async () => {
@@ -42,12 +49,24 @@ export class JobRunner {
     this.updateLoggerForNewRun();
 
     this.logger.info("starting...");
+    // TODO: update this block when ready to run in production
+    if (this.servcies.env.NODE_ENV !== "development") {
+      this.logger.warn("not running in development, exiting");
+      this.running = false;
+      return;
+    }
+
     const now = new Date();
     const usersToNotify = await this.queryUserJobs(now);
     const results = await Promise.allSettled(
       usersToNotify.reduce<Promise<void>[]>((acc, user) => {
         if (user.emailVerified) {
-          acc.push(this.sender.send(user.email, "this is a test email"));
+          acc.push(
+            (async () => {
+              const message = await this.generateMessageForUser(user);
+              await this.sender.send(user.email, message);
+            })()
+          );
         }
         return acc;
       }, [])
@@ -62,7 +81,7 @@ export class JobRunner {
       }
     }
 
-    this.logger.debug("finished");
+    this.logger.info("finished");
     this.running = false;
   };
 }

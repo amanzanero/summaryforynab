@@ -2,7 +2,7 @@ import type { Services } from "./services";
 
 export const seedInitialUser = async (services: Services) => {
   const logger = services.logger.child({ module: "seed" });
-  const user = await services.ynabApi.user.getUser();
+  const user = await services.ynabApi(services.env.YNAP_PAT).user.getUser();
   logger.debug("updating user...");
   // exactly 1 minute from now at the :00 second
   const now = new Date();
