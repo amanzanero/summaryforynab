@@ -22,8 +22,7 @@
       "cache": false
     }, 
     "start": {
-      "cache": false,
-      "dependsOn": ["^build"]
+      "cache": false
     }
   }
 }
