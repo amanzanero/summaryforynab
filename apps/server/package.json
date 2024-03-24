@@ -7,11 +7,13 @@
   "scripts": {
     "build": "tsc && esbuild src/index.ts --bundle --sourcemap --platform=node --packages=external --outfile=dist/index.js --format=esm",
     "dev": "concurrently -k \"npm:watch-*\"",
-    "lint": "eslint . --max-warnings 0",
+    "lint:typecheck": "tsc",
+    "lint:eslint": "eslint . --max-warnings 0",
+    "lint": "npm-run-all lint:*",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch-src": "esbuild src/index.ts --bundle --sourcemap --platform=node --packages=external --outfile=dist/index.js --format=esm --watch",
-    "watch-build": "nodemon dist/index.js"
+    "watch-build": "nodemon --signal SIGTERM dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +28,7 @@
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
     "typescript": "^5.3.3"
   },
   "dependencies": {

@@ -1,13 +1,21 @@
 import type { Services } from "src/services";
 
-export const queryUserJobs = async (time: Date, services: Services) => {
-  const copiedTime = new Date(time);
-  copiedTime.setMinutes(copiedTime.getMinutes(), 0, 0);
-  services.logger.debug(`The time is ${copiedTime.toLocaleTimeString()}`);
-  const usersToNotify = await services.db.user.findMany({
-    where: {
-      preferredUtcTime: copiedTime,
-    },
-  });
-  services.logger.debug("Users to notify", { count: usersToNotify.length });
-};
+export class JobRunner {
+  _services: Services;
+
+  constructor(services: Services) {
+    this._services = services;
+  }
+
+  queryUserJobs = async (time: Date) => {
+    const copiedTime = new Date(time);
+    copiedTime.setMinutes(copiedTime.getMinutes(), 0, 0);
+    this._services.logger.debug(`The time is ${copiedTime.toLocaleTimeString()}`);
+    const usersToNotify = await this._services.db.user.findMany({
+      where: {
+        preferredUtcTime: copiedTime,
+      },
+    });
+    this._services.logger.debug("users to notify", { count: usersToNotify.length });
+  };
+}
