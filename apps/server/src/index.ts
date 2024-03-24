@@ -33,7 +33,7 @@ const main = async (services: Services) => {
     delay = 3600000 - (Date.now() % 3600000);
     timeout = 3600000;
   }
-  services.logger.debug(`delaying ${delay / 1000}s`);
+  services.logger.info(`delaying first run for ${delay / 1000}s`);
   setTimeout(() => {
     if (services.status.ready()) {
       jobRunner.run();

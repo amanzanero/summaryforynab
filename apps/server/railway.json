@@ -7,7 +7,7 @@
   "deploy": {
     "numReplicas": 1,
     "startCommand": "npx turbo start --scope server",
-    "healthcheckPath": "/healtz",
+    "healthcheckPath": "/healthz",
     "sleepApplication": false,
     "restartPolicyType": "ON_FAILURE",
     "healthcheckTimeout": 60,
