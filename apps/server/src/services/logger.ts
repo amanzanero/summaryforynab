@@ -3,7 +3,6 @@ import { WinstonTransport as AxiomTransport } from "@axiomhq/winston";
 import { serverEnvironment } from "./env";
 
 export const makeLogger = () => {
-  const colorizer = winston.format.colorize();
   const defaultMeta: Record<string, string> = { service: "summaryforynab-server" };
   if (serverEnvironment.DEPLOYMENT_ID) {
     defaultMeta.deploymentId = serverEnvironment.DEPLOYMENT_ID;
@@ -17,11 +16,12 @@ export const makeLogger = () => {
             new winston.transports.Console({
               format: winston.format.combine(
                 winston.format.timestamp(),
+                winston.format.colorize(),
                 winston.format.printf(({ message, level, timestamp, module, service, ...rest }) => {
                   const maybeModule = module ? `[${module}] ` : " ";
                   const restString = JSON.stringify(rest);
                   const restStringToLog = restString === "{}" ? "" : ` ${restString}`;
-                  return `${timestamp} ${colorizer.colorize(level, level.toUpperCase())} [${service}]${maybeModule}${message}${restStringToLog} `;
+                  return `${timestamp} ${level} [${service}]${maybeModule}${message}${restStringToLog} `;
                 })
               ),
             }),
