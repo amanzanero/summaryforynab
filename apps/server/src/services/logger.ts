@@ -4,9 +4,13 @@ import { serverEnvironment } from "./env";
 
 export const makeLogger = () => {
   const colorizer = winston.format.colorize();
+  const defaultMeta: Record<string, string> = { service: "summaryforynab-server" };
+  if (serverEnvironment.DEPLOYMENT_ID) {
+    defaultMeta.deploymentId = serverEnvironment.DEPLOYMENT_ID;
+  }
   return winston.createLogger({
     level: serverEnvironment.NODE_ENV === "development" ? "debug" : "info",
-    defaultMeta: { service: "summaryforynab" },
+    defaultMeta,
     transports:
       serverEnvironment.NODE_ENV === "development"
         ? [

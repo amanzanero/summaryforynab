@@ -25,6 +25,7 @@ const envSchema = z.object({
   NODE_ENV: z.string().default("production"),
   PORT: z.string().default("8080"),
   YNAP_PAT: z.string(),
+  DEPLOYMENT_ID: z.string().optional(),
 });
 
 const envServer = envSchema.safeParse({
@@ -34,6 +35,7 @@ const envServer = envSchema.safeParse({
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
   YNAP_PAT: process.env.YNAP_PAT,
+  DEPLOYMENT_ID: process.env.DEPLOYMENT_ID,
 });
 
 if (!envServer.success) {
