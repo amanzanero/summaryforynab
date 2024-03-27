@@ -4,9 +4,8 @@ export const seedInitialUser = async (services: Services) => {
   const logger = services.logger.child({ module: "seed" });
   const user = await services.ynabApi(services.env.YNAP_PAT).user.getUser();
   logger.debug("updating user...");
-  // exactly 1 minute from now at the :00 second
   const now = new Date();
-  now.setMinutes(now.getMinutes() + 1, 0, 0);
+  now.setMinutes(now.getMinutes(), 0, 0);
   logger.debug(`next whole minute mark ${now.toISOString()}`);
   const res = await services.db.user.upsert({
     where: { ynabId: user.data.user.id },

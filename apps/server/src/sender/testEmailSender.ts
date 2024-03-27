@@ -2,6 +2,8 @@ import * as nodemailer from "nodemailer";
 import { Logger } from "winston";
 import type { Sender } from "./sender";
 import type { Services } from "src/services";
+import { makeDailyBudgetEmail } from "./dailybudget";
+import type { GroupAndCategories } from "src/types";
 
 export class TestEmailSender implements Sender {
   _emails = new Map<string, string>();
@@ -22,13 +24,13 @@ export class TestEmailSender implements Sender {
     });
   }
 
-  send = async (email: string, message: string) => {
+  send = async (email: string, groups: GroupAndCategories[]) => {
     this._logger.debug(`sending email to ${email}`);
     await this._transporter.sendMail({
       from: "Summary for YNAB <manzanero.andrew@gmail.com>",
       to: email,
       subject: "Hello from Nodemailer",
-      text: `This is a test email sent using Nodemailer. ${message}`,
+      html: makeDailyBudgetEmail({ groups }),
     });
   };
 }

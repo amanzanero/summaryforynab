@@ -1,7 +1,7 @@
 import express from "express";
 import { serverEnvironment } from "./services/env";
 import { getOrCreateServices, type Services } from "./services";
-import { JobRunner } from "./jobs/jobs";
+import { JobRunner } from "./jobRunner";
 import { seedInitialUser } from "./seed";
 import { Process } from "./services/status";
 import { TestEmailSender } from "./sender/testEmailSender";
@@ -27,7 +27,7 @@ const main = async (services: Services) => {
   let delay: number;
   let timeout: number;
   if (services.env.NODE_ENV === "development") {
-    delay = 60000 - (Date.now() % 60000);
+    delay = 0;
     timeout = 60000;
   } else {
     delay = 3600000 - (Date.now() % 3600000);

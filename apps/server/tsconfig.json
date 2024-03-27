@@ -20,6 +20,7 @@
     "noEmit": true,
     /* If your code doesn't run in the DOM: */
     "lib": ["ESNext"],
+    "jsx": "preserve",
     "paths": {
       "src/*": ["./src/*"]
     }
