@@ -13,17 +13,23 @@ export const seedInitialUser = async (services: Services) => {
   logger.debug("updating user...");
   const now = new Date();
   now.setMinutes(now.getMinutes(), 0, 0);
-  const res = await services.db.user.upsert({
-    where: { ynabId: user.data.user.id },
-    create: {
-      ynabId: user.data.user.id,
-      preferredUtcTime: now,
-      email: "info@amanzanero.com",
-      emailVerified: true,
-    },
-    update: {
-      preferredUtcTime: now,
-    },
-  });
-  logger.debug("upserted user", res);
+  const res = await services.db.user
+    .upsert({
+      where: { ynabId: user.data.user.id },
+      create: {
+        ynabId: user.data.user.id,
+        preferredUtcTime: now,
+        email: "info@amanzanero.com",
+        emailVerified: true,
+      },
+      update: {
+        preferredUtcTime: now,
+      },
+    })
+    .catch((e) => {
+      return e;
+    });
+  if (res) {
+    logger.debug("upserted user", res);
+  }
 };
