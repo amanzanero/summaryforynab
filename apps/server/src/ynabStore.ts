@@ -1,39 +1,59 @@
-import type { CategoryGroup, api } from "ynab";
-import type { GroupAndCategories } from "./types";
+import type { CategoryGroupWithCategories, api } from "ynab";
+import type { UserBudgetData } from "./types";
+import dayjs from "dayjs";
+
+// TODO: this is mine but should get replaced with user's budget id
+const TEMP_BUDGET_ID = "9d96373c-51ad-44f4-aa07-e445ab52fc0d";
 
 export class YnabStore {
-  private _ynabApi: (token: string) => api;
+  private readonly _ynabApi: api;
 
-  constructor(ynabApi: (token: string) => api) {
+  constructor(ynabApi: api) {
     this._ynabApi = ynabApi;
   }
 
-  async getBudgetGroupsForUser(token: string): Promise<GroupAndCategories[]> {
-    const api = this._ynabApi(token);
-    const budget = await api.budgets.getBudgetById("9d96373c-51ad-44f4-aa07-e445ab52fc0d");
-    const categories =
-      budget.data.budget.categories?.filter(
-        (category) => !category.deleted && !!category.goal_type
-      ) ?? [];
-    const groups = (budget.data.budget.category_groups ?? []).reduce<Record<string, CategoryGroup>>(
-      (acc, group) => {
-        acc[group.id] = group;
-        return acc;
-      },
-      {}
+  async getBudgetGroupsForUser(): Promise<UserBudgetData> {
+    const eventualBudgetResponse = this._ynabApi.budgets.getBudgetById(TEMP_BUDGET_ID);
+
+    // transaction in last 24 hours
+    const eventualTransactionsResponse = this._ynabApi.transactions.getTransactions(
+      TEMP_BUDGET_ID,
+      dayjs().subtract(1, "day").format("YYYY-MM-DD")
     );
-    return categories.reduce<GroupAndCategories[]>((acc, category) => {
-      const group = groups[category.category_group_id];
-      if (!group) {
-        return acc;
+
+    const [budgetResponse, transactionsResponse] = await Promise.all([
+      eventualBudgetResponse,
+      eventualTransactionsResponse,
+    ]);
+
+    const {
+      data: { budget: budgetData },
+    } = budgetResponse;
+    const {
+      data: { transactions },
+    } = transactionsResponse;
+
+    // get valid categories from budget
+    const categories =
+      budgetData.categories?.filter((category) => !category.deleted && !!category.goal_type) ?? [];
+
+    // create a map of group id to group
+    const groups: CategoryGroupWithCategories[] =
+      budgetData.category_groups?.map((group) => ({
+        ...group,
+        categories: [],
+      })) ?? [];
+
+    categories.forEach((category) => {
+      const group = groups.find((group) => group.id === category.category_group_id);
+      if (group) {
+        group.categories.push(category);
       }
-      const existing = acc.find((g) => g.group.id === group.id);
-      if (existing) {
-        existing.categories.push(category);
-      } else {
-        acc.push({ group, categories: [category] });
-      }
-      return acc;
-    }, []);
+    });
+
+    return {
+      groups: Object.values(groups).filter((group) => group.categories.length > 0),
+      transactions,
+    };
   }
 }

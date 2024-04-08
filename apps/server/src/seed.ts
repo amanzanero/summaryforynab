@@ -1,4 +1,3 @@
-import type { UserResponse } from "ynab";
 import type { Services } from "./services";
 
 export const seedInitialUser = async (services: Services) => {
@@ -24,6 +23,7 @@ export const seedInitialUser = async (services: Services) => {
       },
       update: {
         preferredUtcTime: now,
+        email: "info@amanzanero.com",
       },
     })
     .catch((e) => {

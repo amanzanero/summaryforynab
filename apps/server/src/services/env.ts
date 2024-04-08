@@ -26,6 +26,7 @@ const envSchema = z.object({
   PORT: z.string().default("8080"),
   YNAP_PAT: z.string(),
   DEPLOYMENT_ID: z.string().optional(),
+  SKIP_EMAIL: z.boolean().default(false),
 });
 
 const envServer = envSchema.safeParse({
@@ -36,6 +37,7 @@ const envServer = envSchema.safeParse({
   PORT: process.env.PORT,
   YNAP_PAT: process.env.YNAP_PAT,
   DEPLOYMENT_ID: process.env.DEPLOYMENT_ID,
+  SKIP_EMAIL: process.env.SKIP_EMAIL === "true",
 });
 
 if (!envServer.success) {

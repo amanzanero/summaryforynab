@@ -1,5 +1,5 @@
-import type { GroupAndCategories } from "src/types";
+import type { UserBudgetData } from "src/types";
 
 export interface Sender {
-  send(email: string, groups: GroupAndCategories[]): Promise<void>;
+  send(email: string, data: UserBudgetData): Promise<void>;
 }

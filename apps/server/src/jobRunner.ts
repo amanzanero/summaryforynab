@@ -9,13 +9,11 @@ export class JobRunner {
   private logger: WinstonLogger;
   private sender: Sender;
   private running = false;
-  private ynabStore: YnabStore;
 
   constructor(services: Services, sender: Sender) {
     this.servcies = services;
     this.logger = services.logger.child({ module: "JobRunner" });
     this.sender = sender;
-    this.ynabStore = new YnabStore((token) => services.ynabApi(token));
   }
 
   private updateLoggerForNewRun = () => {
@@ -59,26 +57,28 @@ export class JobRunner {
         if (user.emailVerified) {
           acc.push(
             (async () => {
-              const message = await this.ynabStore.getBudgetGroupsForUser(
-                this.servcies.env.YNAP_PAT
-              );
-              await this.sender.send(user.email, message);
+              const budgetInfo = await new YnabStore(
+                this.servcies.ynabApi(this.servcies.env.YNAP_PAT)
+              )
+                .getBudgetGroupsForUser()
+                .catch((error) => {
+                  this.logger.error("failed to get budget groups", { userId: user.id, error });
+                  throw error;
+                });
+              await this.sender.send(user.email, budgetInfo).catch((error) => {
+                this.logger.error("failed to send email", { userId: user.id, error });
+                throw error;
+              });
             })()
           );
         }
         return acc;
       }, [])
     );
-    const erroredEmails = results.filter(
-      (result): result is PromiseRejectedResult => result.status === "rejected"
-    );
+    const erroredEmails = results.filter((result) => result.status === "rejected");
     if (erroredEmails.length > 0) {
       this.logger.error(`failed to send ${erroredEmails.length} emails`);
-      for (const error of erroredEmails) {
-        this.logger.error("failed to send email", { error: error.reason });
-      }
     }
-
     this.logger.info("finished");
     this.running = false;
   };

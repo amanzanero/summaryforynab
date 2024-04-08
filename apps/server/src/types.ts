@@ -1,6 +1,10 @@
-import type { Category, CategoryGroup } from "ynab";
+import type { Category, CategoryGroup, TransactionDetail } from "ynab";
 
-export interface GroupAndCategories {
-  group: CategoryGroup;
+export interface CategoryGroupWithCateogries extends CategoryGroup {
   categories: Category[];
+}
+
+export interface UserBudgetData {
+  groups: CategoryGroupWithCateogries[];
+  transactions: TransactionDetail[];
 }
