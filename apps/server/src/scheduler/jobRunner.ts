@@ -1,3 +1,7 @@
+/**
+ * Contains the logic for querying which users should receive an email, aggregating
+ * the information, formatting the email, and sending the email.
+ */
 import { nanoid } from "nanoid";
 import { Logger as WinstonLogger } from "winston";
 import type { Sender } from "src/sender/sender";

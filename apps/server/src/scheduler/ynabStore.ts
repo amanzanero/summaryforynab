@@ -1,6 +1,6 @@
 import type { CategoryGroupWithCategories, api } from "ynab";
-import type { UserBudgetData } from "./types";
 import dayjs from "dayjs";
+import type { UserBudgetData } from "src/types";
 
 // TODO: this is mine but should get replaced with user's budget id
 const TEMP_BUDGET_ID = "9d96373c-51ad-44f4-aa07-e445ab52fc0d";

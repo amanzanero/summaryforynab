@@ -1,4 +1,4 @@
-import type { Services } from "./services";
+import type { Services } from "src/services";
 
 export const seedInitialUser = async (services: Services) => {
   const logger = services.logger.child({ module: "seed" });
