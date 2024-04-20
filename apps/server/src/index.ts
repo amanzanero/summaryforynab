@@ -20,7 +20,7 @@ const main = async (services: Services) => {
       user: services.env.EMAIL_USER,
       pass: services.env.EMAIL_PASS,
       services,
-    })
+    }),
   );
 
   // set delay to the next whole minute in dev, next whole hour in prod
@@ -85,14 +85,16 @@ const cleanup = async () => {
   shutdown = true;
   services.logger.info("cleaning up...");
   await Promise.allSettled([
-    services.db.$disconnect().then(() => services.logger.info("disconnected from db")),
+    services.db
+      .$disconnect()
+      .then(() => services.logger.info("disconnected from db")),
     new Promise<void>((resolve, reject) =>
       server.close((err) => {
         if (err) {
           reject(err);
         }
         resolve();
-      })
+      }),
     ).then(() => services.logger.info("http server closed")),
   ]);
   process.exit(0);

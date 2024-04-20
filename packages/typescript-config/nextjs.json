@@ -18,7 +18,6 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
-    "lib": ["dom", "dom.iterable", "ES2022"],
-
+    "lib": ["dom", "dom.iterable", "ES2022"]
   }
 }

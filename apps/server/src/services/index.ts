@@ -1,4 +1,3 @@
-import type { PrismaClient } from "@prisma/client";
 import type { api } from "ynab";
 import { Logger as WinstonLogger } from "winston";
 import type { ServerEnvironment } from "./env";
@@ -8,6 +7,7 @@ import { serverEnvironment } from "./env";
 import { getYnabApi } from "./ynabApi";
 import { makeLogger } from "./logger";
 import { ProcessStatusImpl } from "./status";
+import type { PrismaClient } from "@repo/data";
 
 export interface Services {
   db: PrismaClient;
