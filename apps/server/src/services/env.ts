@@ -36,7 +36,7 @@ const envServer = envSchema.safeParse({
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
   YNAP_PAT: process.env.YNAP_PAT,
-  DEPLOYMENT_ID: process.env.DEPLOYMENT_ID,
+  DEPLOYMENT_ID: process.env.RAILWAY_DEPLOYMENT_ID,
   SKIP_EMAIL: process.env.SKIP_EMAIL === "true",
 });
 

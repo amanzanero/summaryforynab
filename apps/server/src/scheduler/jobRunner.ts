@@ -50,12 +50,6 @@ export class JobRunner {
     this.updateLoggerForNewRun();
 
     this.logger.info("starting...");
-    // TODO: update this block when ready to run in production
-    if (this.servcies.env.NODE_ENV !== "development") {
-      this.logger.warn("not running in development, exiting");
-      this.running = false;
-      return;
-    }
 
     const now = new Date();
     const usersToNotify = await this.queryUserJobs(now);
