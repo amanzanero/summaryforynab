@@ -13,13 +13,15 @@ export class YnabStore {
   }
 
   async getBudgetGroupsForUser(): Promise<UserBudgetData> {
-    const eventualBudgetResponse = this._ynabApi.budgets.getBudgetById(TEMP_BUDGET_ID);
+    const eventualBudgetResponse =
+      this._ynabApi.budgets.getBudgetById(TEMP_BUDGET_ID);
 
     // transaction in last 24 hours
-    const eventualTransactionsResponse = this._ynabApi.transactions.getTransactions(
-      TEMP_BUDGET_ID,
-      dayjs().subtract(1, "day").format("YYYY-MM-DD")
-    );
+    const eventualTransactionsResponse =
+      this._ynabApi.transactions.getTransactions(
+        TEMP_BUDGET_ID,
+        dayjs().subtract(2, "day").format("YYYY-MM-DD"),
+      );
 
     const [budgetResponse, transactionsResponse] = await Promise.all([
       eventualBudgetResponse,
@@ -32,10 +34,11 @@ export class YnabStore {
     const {
       data: { transactions },
     } = transactionsResponse;
-
     // get valid categories from budget
     const categories =
-      budgetData.categories?.filter((category) => !category.deleted && !!category.goal_type) ?? [];
+      budgetData.categories?.filter(
+        (category) => !category.deleted && !!category.goal_type,
+      ) ?? [];
 
     // create a map of group id to group
     const groups: CategoryGroupWithCategories[] =
@@ -45,14 +48,18 @@ export class YnabStore {
       })) ?? [];
 
     categories.forEach((category) => {
-      const group = groups.find((group) => group.id === category.category_group_id);
+      const group = groups.find(
+        (group) => group.id === category.category_group_id,
+      );
       if (group) {
         group.categories.push(category);
       }
     });
 
     return {
-      groups: Object.values(groups).filter((group) => group.categories.length > 0),
+      groups: Object.values(groups).filter(
+        (group) => group.categories.length > 0,
+      ),
       transactions,
     };
   }

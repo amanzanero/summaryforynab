@@ -1,5 +1,14 @@
 import React from "react";
-import { Column, Heading, Hr, Html, Preview, Row, Tailwind, Text } from "@react-email/components";
+import {
+  Column,
+  Heading,
+  Hr,
+  Html,
+  Preview,
+  Row,
+  Tailwind,
+  Text,
+} from "@react-email/components";
 import { render } from "@react-email/render";
 import type { UserBudgetData } from "src/types";
 import { classnames } from "src/util";
@@ -26,7 +35,7 @@ function DailyBudget({ data }: DailyBudgetProps) {
               key={group.id}
               className={classnames(
                 "border border-gray-300 border-solid rounded-lg",
-                groupI > 0 ? "mt-4" : undefined
+                groupI > 0 ? "mt-4" : undefined,
               )}
             >
               <Column>
@@ -40,13 +49,17 @@ function DailyBudget({ data }: DailyBudgetProps) {
                     <Hr />
                     <Text className="ml-5 mr-5">
                       {category.name}: Spent&nbsp;
-                      <span className="font-bold">${numberToDollars(category.activity)}</span>{" "}
+                      <span className="font-bold">
+                        ${numberToDollars(category.activity)}
+                      </span>{" "}
                       of&nbsp;
                       <span className="font-bold">
                         ${numberToDollars(category.goal_overall_funded ?? 0)}
                       </span>
                       . Balance is&nbsp;
-                      <span className="font-bold">${numberToDollars(category.balance)}</span>
+                      <span className="font-bold">
+                        ${numberToDollars(category.balance)}
+                      </span>
                     </Text>
                   </Row>
                 ))}
@@ -56,7 +69,9 @@ function DailyBudget({ data }: DailyBudgetProps) {
           <Row className="border border-gray-300 border-solid rounded-lg mt-4">
             <Column>
               <Row>
-                <Heading as="h3">Recent Transactions</Heading>
+                <Heading as="h3" m={10}>
+                  Recent Transactions
+                </Heading>
               </Row>
               {data.transactions.length === 0 ? (
                 <Row>
@@ -71,7 +86,9 @@ function DailyBudget({ data }: DailyBudgetProps) {
                       {transaction.payee_name ?? "Unknown"}
                       :&nbsp;
                       {transaction.memo} for&nbsp;
-                      <span className="font-bold">${numberToDollars(transaction.amount)}</span>
+                      <span className="font-bold">
+                        ${numberToDollars(transaction.amount)}
+                      </span>
                     </Text>
                   </Row>
                 ))

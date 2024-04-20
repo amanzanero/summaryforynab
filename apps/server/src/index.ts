@@ -11,9 +11,6 @@ const main = async (services: Services) => {
     await seedInitialUser(services);
   }
 
-  /**
-   * Query all user jobs every minute
-   */
   const jobRunner = new JobRunner(
     services,
     new TestEmailSender({
@@ -55,13 +52,12 @@ const main = async (services: Services) => {
 
 const app = express();
 
-app.get("/healthz", async (req, res) => {
+app.get("/healthz", async (_req, res) => {
   const services = await getOrCreateServices();
   if (!services.status.processesReady()) {
     services.logger.info("processes are not ready, responding with 503");
     res.status(503).send("service unavailable");
   } else {
-    services.status.registerHealthCheckReady();
     services.logger.info("responding OK to health check");
     res.status(200).send("ok");
   }

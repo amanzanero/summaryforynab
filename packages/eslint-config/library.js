@@ -36,4 +36,7 @@ module.exports = {
       files: ["*.js?(x)", "*.ts?(x)"],
     },
   ],
+  rules: {
+    "no-console": "error",
+  },
 };

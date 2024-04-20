@@ -29,7 +29,7 @@ export const getOrCreateServices: () => Promise<Services> = async () => {
     env: serverEnvironment,
     logger: makeLogger(),
     ynabApi: getYnabApi,
-    status: new ProcessStatusImpl(serverEnvironment),
+    status: new ProcessStatusImpl(),
   };
   _services = services;
   return services;

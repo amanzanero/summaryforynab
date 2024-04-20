@@ -17,7 +17,10 @@ export class JobRunner {
   }
 
   private updateLoggerForNewRun = () => {
-    this.logger = this.servcies.logger.child({ module: "JobRunner", runId: nanoid() });
+    this.logger = this.servcies.logger.child({
+      module: "JobRunner",
+      runId: nanoid(),
+    });
   };
 
   private queryUserJobs = async (time: Date) => {
@@ -58,24 +61,32 @@ export class JobRunner {
           acc.push(
             (async () => {
               const budgetInfo = await new YnabStore(
-                this.servcies.ynabApi(this.servcies.env.YNAP_PAT)
+                this.servcies.ynabApi(this.servcies.env.YNAP_PAT),
               )
                 .getBudgetGroupsForUser()
                 .catch((error) => {
-                  this.logger.error("failed to get budget groups", { userId: user.id, error });
+                  this.logger.error("failed to get budget groups", {
+                    userId: user.id,
+                    error,
+                  });
                   throw error;
                 });
               await this.sender.send(user.email, budgetInfo).catch((error) => {
-                this.logger.error("failed to send email", { userId: user.id, error });
+                this.logger.error("failed to send email", {
+                  userId: user.id,
+                  error,
+                });
                 throw error;
               });
-            })()
+            })(),
           );
         }
         return acc;
-      }, [])
+      }, []),
     );
-    const erroredEmails = results.filter((result) => result.status === "rejected");
+    const erroredEmails = results.filter(
+      (result) => result.status === "rejected",
+    );
     if (erroredEmails.length > 0) {
       this.logger.error(`failed to send ${erroredEmails.length} emails`);
     }

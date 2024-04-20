@@ -11,7 +11,15 @@ export class TestEmailSender implements Sender {
   _logger: Logger;
   _services: Services;
 
-  constructor({ user, pass, services }: { user: string; pass: string; services: Services }) {
+  constructor({
+    user,
+    pass,
+    services,
+  }: {
+    user: string;
+    pass: string;
+    services: Services;
+  }) {
     this._services = services;
     this._logger = services.logger.child({ module: "TestEmailSender" });
     this._transporter = nodemailer.createTransport({

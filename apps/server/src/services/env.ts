@@ -41,6 +41,7 @@ const envServer = envSchema.safeParse({
 });
 
 if (!envServer.success) {
+  // eslint-disable-next-line no-console
   console.error(envServer.error.issues);
   process.exit(1);
 }
