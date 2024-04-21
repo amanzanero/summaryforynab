@@ -20,6 +20,34 @@ export class JobRunner {
     this.sender = sender;
   }
 
+  run = async () => {
+    if (this.running) {
+      this.logger.warn("job is already running");
+      return;
+    } else {
+      this.running = true;
+    }
+    this.updateLoggerForNewRun();
+    this.logger.info("starting...");
+
+    const now = new Date();
+    const usersToNotify = await this.queryUserJobs(now);
+    const results = await Promise.allSettled(
+      usersToNotify
+        .filter((user) => user.emailVerified)
+        .map((user) => this.fetchAndSend(user)),
+    );
+    const erroredEmails = results.filter(
+      (result) => result.status === "rejected",
+    );
+    if (erroredEmails.length > 0) {
+      this.logger.error(`failed to send ${erroredEmails.length} emails`);
+    }
+
+    this.logger.info("finished");
+    this.running = false;
+  };
+
   private updateLoggerForNewRun = () => {
     this.logger = this.servcies.logger.child({
       module: "JobRunner",
@@ -40,55 +68,19 @@ export class JobRunner {
     return usersToNotify;
   };
 
-  run = async () => {
-    if (this.running) {
-      this.logger.warn("job is already running");
-      return;
-    } else {
-      this.running = true;
-    }
-    this.updateLoggerForNewRun();
-
-    this.logger.info("starting...");
-
-    const now = new Date();
-    const usersToNotify = await this.queryUserJobs(now);
-    const results = await Promise.allSettled(
-      usersToNotify.reduce<Promise<void>[]>((acc, user) => {
-        if (user.emailVerified) {
-          acc.push(
-            (async () => {
-              const budgetInfo = await new YnabStore(
-                this.servcies.ynabApi(this.servcies.env.YNAP_PAT),
-              )
-                .getBudgetGroupsForUser()
-                .catch((error) => {
-                  this.logger.error("failed to get budget groups", {
-                    userId: user.id,
-                    error,
-                  });
-                  throw error;
-                });
-              await this.sender.send(user.email, budgetInfo).catch((error) => {
-                this.logger.error("failed to send email", {
-                  userId: user.id,
-                  error,
-                });
-                throw error;
-              });
-            })(),
-          );
-        }
-        return acc;
-      }, []),
-    );
-    const erroredEmails = results.filter(
-      (result) => result.status === "rejected",
-    );
-    if (erroredEmails.length > 0) {
-      this.logger.error(`failed to send ${erroredEmails.length} emails`);
-    }
-    this.logger.info("finished");
-    this.running = false;
+  private fetchAndSend = async (user: { id: number; email: string }) => {
+    const userLogger = this.logger.child({ userId: user.id });
+    const budgetInfo = await new YnabStore(
+      this.servcies.ynabApi(this.servcies.env.YNAP_PAT),
+    )
+      .getBudgetGroupsForUser()
+      .catch((error) => {
+        userLogger.error("failed to get budget groups", { error });
+        throw error;
+      });
+    await this.sender.send(user.email, budgetInfo).catch((error) => {
+      userLogger.error("failed to send email", { error });
+      throw error;
+    });
   };
 }
