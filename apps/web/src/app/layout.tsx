@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -16,7 +17,9 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={cn(inter.className, "flex w-full justify-center")}>
+        <div className="max-w-lg w-full p-4">{children}</div>
+      </body>
     </html>
   );
 }

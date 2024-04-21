@@ -14,11 +14,13 @@ datasource db {
 }
 
 model User {
-  id               Int      @id @default(autoincrement())
-  ynabId           String   @unique
-  preferredUtcTime DateTime
-  email            String   @unique
-  emailVerified    Boolean
+  id                     Int     @id @default(autoincrement())
+  ynabId                 String  @unique
+  preferredSendHourUtc   Int     @default(15)
+  preferredSendMinuteUtc Int     @default(0)
+  timezone               String  @default("America/Los_Angeles")
+  email                  String  @unique
+  emailVerified          Boolean
 
-  @@index([preferredUtcTime])
+  @@index([preferredSendHourUtc, preferredSendMinuteUtc])
 }

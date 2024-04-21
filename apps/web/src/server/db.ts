@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@repo/data";
 
 import { env } from "@/env";
 

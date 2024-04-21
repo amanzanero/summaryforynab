@@ -7,6 +7,8 @@ import { Logger as WinstonLogger } from "winston";
 import type { Sender } from "src/sender/sender";
 import type { Services } from "src/services";
 import { YnabStore } from "./ynabStore";
+import { utcNow } from "src/util";
+import type dayjs from "dayjs";
 
 export class JobRunner {
   private servcies: Services;
@@ -30,7 +32,7 @@ export class JobRunner {
     this.updateLoggerForNewRun();
     this.logger.info("starting...");
 
-    const now = new Date();
+    const now = utcNow();
     const usersToNotify = await this.queryUserJobs(now);
     const results = await Promise.allSettled(
       usersToNotify
@@ -55,13 +57,16 @@ export class JobRunner {
     });
   };
 
-  private queryUserJobs = async (time: Date) => {
-    const copiedTime = new Date(time);
-    copiedTime.setMinutes(copiedTime.getMinutes(), 0, 0);
-    this.logger.debug(`the time is ${copiedTime.toLocaleTimeString()}`);
+  private queryUserJobs = async (time: dayjs.Dayjs) => {
+    const copiedTime = time.clone();
+    copiedTime.set("second", 0);
+    copiedTime.set("millisecond", 0);
+    copiedTime.set("minute", 0);
+    this.logger.debug(`the time is ${copiedTime.format()}`);
     const usersToNotify = await this.servcies.db.user.findMany({
       where: {
-        preferredUtcTime: copiedTime,
+        preferredSendHourUtc: copiedTime.hour(),
+        preferredSendMinuteUtc: copiedTime.minute(),
       },
     });
     this.logger.info("users to notify", { count: usersToNotify.length });

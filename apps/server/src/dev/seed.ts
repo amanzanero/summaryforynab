@@ -1,4 +1,5 @@
 import type { Services } from "src/services";
+import { utcNow } from "src/util";
 
 export const seedInitialUser = async (services: Services) => {
   const logger = services.logger.child({ module: "seed" });
@@ -10,19 +11,20 @@ export const seedInitialUser = async (services: Services) => {
     });
   if (!user) return;
   logger.debug("updating user...");
-  const now = new Date();
-  now.setMinutes(now.getMinutes(), 0, 0);
+  const now = utcNow();
   const res = await services.db.user
     .upsert({
       where: { ynabId: user.data.user.id },
       create: {
         ynabId: user.data.user.id,
-        preferredUtcTime: now,
+        preferredSendHourUtc: now.hour(),
+        preferredSendMinuteUtc: now.minute(),
         email: "info@amanzanero.com",
         emailVerified: true,
       },
       update: {
-        preferredUtcTime: now,
+        preferredSendHourUtc: now.hour(),
+        preferredSendMinuteUtc: now.minute(),
         email: "info@amanzanero.com",
       },
     })
