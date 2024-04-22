@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Provider } from "./providers";
 import "./globals.css";
+import { Separator } from "@/components/ui/separator";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,8 +35,10 @@ export default function RootLayout({
             )}
           >
             <NavBar />
+            <Separator />
             <div className="max-w-lg w-full p-4">{children}</div>
             <div className="flex-1" />
+            <Separator />
             <Footer />
           </main>
         </Provider>
@@ -46,16 +49,16 @@ export default function RootLayout({
 
 function NavBar() {
   return (
-    <header className="w-full flex justify-center h-16 bg-primary">
+    <header className="w-full flex justify-center h-16 bg-primary dark:bg-background">
       <div className="w-full max-w-lg flex items-center justify-between px-4">
         <Link className="flex items-center" href="/">
-          <span className="text-lg font-semibold text-primary-foreground hover:text-primary-foreground/80 hover:underline transition-colors">
+          <span className="text-lg font-semibold text-primary-foreground hover:text-primary-foreground/80 hover:underline dark:text-gray-50 dark:hover:text-gray-300 transition-colors">
             Digest for YNAB
           </span>
         </Link>
         <nav className="flex items-center space-x-4">
           <Link
-            className="text-sm font-medium hover:underline text-primary-foreground hover:text-primary-foreground/80 transition-colors"
+            className="text-sm font-medium text-primary-foreground hover:text-primary-foreground/80 hover:underline dark:text-gray-50 dark:hover:text-gray-300 transition-colors"
             href="#"
           >
             Settings
@@ -68,17 +71,17 @@ function NavBar() {
 
 function Footer() {
   return (
-    <footer className="bg-primary py-6 w-full flex justify-center">
+    <footer className="py-6 w-full flex justify-center bg-primary dark:bg-background">
       <div className="max-w-lg container mx-auto px-4 flex flex-col gap-4 items-start md:flex-row md:justify-between md:items-center">
         <div className="flex flex-col md:items-center gap-4 md:flex-row">
           <Link
-            className="text-gray-300 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-50 transition-colors"
+            className=" text-primary-foreground hover:text-primary-foreground/80 hover:underline dark:text-gray-50 dark:hover:text-gray-300 transition-colors"
             href="/privacypolicy"
           >
             Privacy Policy
           </Link>
           <Link
-            className="text-gray-300 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-50 transition-colors"
+            className=" text-primary-foreground hover:text-primary-foreground/80 hover:underline dark:text-gray-50 dark:hover:text-gray-300 transition-colors"
             href="#"
           >
             Contact
