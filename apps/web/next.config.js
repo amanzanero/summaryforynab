@@ -4,7 +4,11 @@
  */
 await import("./src/env.js");
 
+import withBundleAnalyzer from "@next/bundle-analyzer";
+
 /** @type {import("next").NextConfig} */
 const config = {};
 
-export default config;
+export default process.env.ANALYZE === "true"
+  ? withBundleAnalyzer()(config)
+  : config;

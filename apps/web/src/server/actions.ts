@@ -1,7 +1,7 @@
 import { convertTimeToTargetTimezone } from "@/lib/utils";
 import { db } from "./db";
 
-export async function updatePreferredTime(formData: FormData) {
+export async function updatePreferredTime(userId: number, formData: FormData) {
   "use server";
   const preferredTime = formData.get("preferredTime") as string; // in format HH:mm
   const timezone = formData.get("timezone") as string;
@@ -12,7 +12,7 @@ export async function updatePreferredTime(formData: FormData) {
     timezone,
   );
   await db.user.update({
-    where: { email: "info@amanzanero.com" },
+    where: { id: userId },
     data: {
       preferredSendHourUtc: hours,
       preferredSendMinuteUtc: minutes,

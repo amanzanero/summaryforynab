@@ -19,17 +19,23 @@ export const TimezoneSelect = ({
   preselectedTimezone,
 }: TimezoneDropdownProps) => {
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // if preselected timezone, sort the list so that it appears first, otherwise make userTimezone the first
-  // element in the list
-  const resortedTimezones = preselectedTimezone
-    ? [
-        preselectedTimezone,
-        ...timezones.filter((timezone) => timezone !== preselectedTimezone),
-      ]
-    : [
-        userTimezone,
-        ...timezones.filter((timezone) => timezone !== userTimezone),
-      ];
+  // resort list to have preselected first, and detected timezone second in the list
+  const resortedTimezones = timezones.sort((a, b) => {
+    if (a === preselectedTimezone) {
+      return -1;
+    }
+    if (b === preselectedTimezone) {
+      return 1;
+    }
+    if (a === userTimezone) {
+      return -1;
+    }
+    if (b === userTimezone) {
+      return 1;
+    }
+    // otherwise alphabetic
+    return a.localeCompare(b);
+  });
   return (
     <Select name="timezone" defaultValue={preselectedTimezone ?? userTimezone}>
       <SelectTrigger>
@@ -45,6 +51,9 @@ export const TimezoneSelect = ({
             return (
               <SelectItem key={tz} value={tz}>
                 {tz}
+                {preselectedTimezone !== userTimezone && tz === userTimezone ? (
+                  <span className="font-bold">&nbsp;(detected)</span>
+                ) : null}
               </SelectItem>
             );
           })}

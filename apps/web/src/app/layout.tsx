@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
-import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
+import { Provider } from "./providers";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,10 +18,73 @@ export default function RootLayout({
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <html lang="en">
-      <body className={cn(inter.className, "flex w-full justify-center")}>
-        <div className="max-w-lg w-full p-4">{children}</div>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body>
+        <Provider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main
+            className={cn(
+              inter.className,
+              "flex flex-col min-h-screen w-full items-center",
+            )}
+          >
+            <NavBar />
+            <div className="max-w-lg w-full p-4">{children}</div>
+            <div className="flex-1" />
+            <Footer />
+          </main>
+        </Provider>
       </body>
     </html>
+  );
+}
+
+function NavBar() {
+  return (
+    <header className="w-full flex justify-center h-16 bg-primary">
+      <div className="w-full max-w-lg flex items-center justify-between px-4">
+        <Link className="flex items-center" href="/">
+          <span className="text-lg font-semibold text-primary-foreground hover:text-primary-foreground/80 hover:underline transition-colors">
+            Digest for YNAB
+          </span>
+        </Link>
+        <nav className="flex items-center space-x-4">
+          <Link
+            className="text-sm font-medium hover:underline text-primary-foreground hover:text-primary-foreground/80 transition-colors"
+            href="#"
+          >
+            Settings
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-primary py-6 w-full flex justify-center">
+      <div className="max-w-lg container mx-auto px-4 flex flex-col gap-4 items-start md:flex-row md:justify-between md:items-center">
+        <div className="flex flex-col md:items-center gap-4 md:flex-row">
+          <Link
+            className="text-gray-300 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-50 transition-colors"
+            href="/privacypolicy"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            className="text-gray-300 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-50 transition-colors"
+            href="#"
+          >
+            Contact
+          </Link>
+        </div>
+      </div>
+    </footer>
   );
 }

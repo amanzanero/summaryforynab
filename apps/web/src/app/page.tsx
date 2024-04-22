@@ -21,35 +21,32 @@ export default async function Page(): Promise<JSX.Element> {
     `${user.preferredSendHourUtc}:${user.preferredSendMinuteUtc}`,
     user.timezone,
   );
+  const updatePreferredTimeWithId = updatePreferredTime.bind(null, user.id);
   return (
-    <main>
-      <div className="text-base">
-        Hey, {user.email}. The following is your preferred time.
-        <form
-          action={updatePreferredTime}
-          className="flex flex-col w-full space-y-4"
-        >
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="preferredTime">Preferred Time</label>
-            <div className="flex space-x-2">
-              <Input
-                type="time"
-                id="preferredTime"
-                name="preferredTime"
-                className="w-full"
-                defaultValue={`${padWithZero(hours)}:${padWithZero(minutes)}`}
-              />
-              <TimezoneSelect
-                timezones={[
-                  ...new Set(timezones.flatMap((tz) => tz.utc)),
-                ].sort()}
-                preselectedTimezone={user.timezone}
-              />
-            </div>
+    <div className="text-base">
+      Hey, {user.email}. The following is your preferred time.
+      <form
+        action={updatePreferredTimeWithId}
+        className="flex flex-col w-full space-y-4"
+      >
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="preferredTime">Preferred Time</label>
+          <div className="flex space-x-2">
+            <Input
+              type="time"
+              id="preferredTime"
+              name="preferredTime"
+              className="w-full"
+              defaultValue={`${padWithZero(hours)}:${padWithZero(minutes)}`}
+            />
+            <TimezoneSelect
+              timezones={[...new Set(timezones.flatMap((tz) => tz.utc))].sort()}
+              preselectedTimezone={user.timezone}
+            />
           </div>
-          <Button type="submit">Update</Button>
-        </form>
-      </div>
-    </main>
+        </div>
+        <Button type="submit">Update</Button>
+      </form>
+    </div>
   );
 }
