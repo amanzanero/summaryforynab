@@ -59,7 +59,7 @@ function NavBar() {
         <nav className="flex items-center space-x-4">
           <Link
             className="text-sm font-medium text-primary-foreground hover:text-primary-foreground/80 hover:underline dark:text-gray-50 dark:hover:text-gray-300 transition-colors"
-            href="#"
+            href="/settings"
           >
             Settings
           </Link>
