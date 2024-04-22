@@ -20,7 +20,7 @@ export const setupIntervalJob = async (services: Services) => {
   );
 
   intervalWithInitialDelay(services, () => {
-    if (services.status.ready()) {
+    if (services.status.ready() || services.env.NODE_ENV === "development") {
       jobRunner.run();
     } else {
       services.logger.warn("services not ready, not starting periodic job");

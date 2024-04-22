@@ -4,17 +4,14 @@ export const intervalWithInitialDelay = (
   services: Services,
   action: () => unknown,
 ) => {
-  // set delay to the next whole minute in dev, next whole hour in prod
-  let delay: number;
-  let interval: number;
+  // set delay to the next whole minute, dont delay in dev
+  const delay = 60000 - (Date.now() % 60000);
+  const interval = 60000;
   if (services.env.NODE_ENV === "development") {
-    delay = 0;
-    interval = 60000;
+    action();
   } else {
-    delay = 3600000 - (Date.now() % 3600000);
-    interval = 3600000;
+    services.logger.info(`delaying first run for ${delay / 1000}s`);
   }
-  services.logger.info(`delaying first run for ${delay / 1000}s`);
 
   setTimeout(() => {
     action();
