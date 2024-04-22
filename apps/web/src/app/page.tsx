@@ -4,7 +4,7 @@ import { updatePreferredTime } from "@/server/actions";
 import { db } from "@/server/db";
 import { TimezoneSelect } from "./timezoneSelect";
 import { timezones } from "./timezones";
-import { convertTimeToTargetTimezone, padWithZero } from "@/lib/utils";
+import { padWithZero, convertTimeFromUTC } from "@/lib/utils";
 
 export default async function Page(): Promise<JSX.Element> {
   const user = await db.user.findUnique({
@@ -17,8 +17,8 @@ export default async function Page(): Promise<JSX.Element> {
       </main>
     );
   }
-  const { hours, minutes } = convertTimeToTargetTimezone(
-    `${user.preferredSendHourUtc}:${user.preferredSendMinuteUtc}`,
+  const { hours, minutes } = convertTimeFromUTC(
+    `${padWithZero(user.preferredSendHourUtc)}:${padWithZero(user.preferredSendMinuteUtc)}`,
     user.timezone,
   );
   const updatePreferredTimeWithId = updatePreferredTime.bind(null, user.id);

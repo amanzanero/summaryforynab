@@ -3,11 +3,9 @@ import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import objectSupport from "dayjs/plugin/objectSupport";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.extend(objectSupport);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,12 +18,8 @@ export function padWithZero(num: number) {
   return numStr.padStart(2, "0");
 }
 
-export function convertTimeToTargetTimezone(
-  timeString: string,
-  targetZone: string,
-  sourceZone: string | undefined = undefined,
-) {
-  // Parse hours and minutes from the time string "hh:mm"
+function validateTime(timeString: string) {
+  // Parse hours and minutes from the time string "HH:mm"
   const [hour, minute] = timeString.split(":").map(Number);
   if (
     hour === undefined ||
@@ -39,17 +33,51 @@ export function convertTimeToTargetTimezone(
   ) {
     throw new TypeError("Invalid time string");
   }
+}
 
-  // Create a new Date object set to current date and time
-  let date: dayjs.Dayjs;
-  if (sourceZone) {
-    date = dayjs.tz({ hour, minute, seconds: 0 }, sourceZone);
-  } else {
-    date = dayjs.utc({ hour, minute, seconds: 0 });
-  }
+// Function to convert time in "HH:mm" format from variable timezone to UTC
+export function convertTimeToUTC(timeStr: string, fromTimezone: string) {
+  validateTime(timeStr);
+  // Get the current date in the source timezone
+  const currentDateInTimezone = dayjs().tz(fromTimezone);
 
-  // Convert the time to the target timezone
-  const targetDate = date.tz(targetZone);
+  // Construct datetime string with the current date and input time
+  const datetimeStr =
+    currentDateInTimezone.format("YYYY-MM-DD") + `T${timeStr}:00`;
 
-  return { hours: targetDate.hour(), minutes: targetDate.minute() };
+  // Parse datetime string with the specified timezone
+  const inputTime = dayjs.tz(
+    datetimeStr,
+    `${currentDateInTimezone.format("YYYY-MM-DD")}THH:mm:ss`,
+    fromTimezone,
+  );
+  // Set timezone of input time
+  const timeInTimezone = inputTime.tz(fromTimezone);
+
+  // Convert to UTC
+  const utcTime = timeInTimezone.utc();
+
+  // Return time in "HH:mm" UTC format
+  return { hours: utcTime.hour(), minutes: utcTime.minute() };
+}
+
+// Function to convert time in "HH:mm" format from UTC to variable timezone
+export function convertTimeFromUTC(timeStr: string, toTimezone: string) {
+  // Get the current date in UTC
+  const currentDateInUTC = dayjs.utc();
+
+  // Construct datetime string with the current date in UTC and input time
+  const datetimeStr = currentDateInUTC.format("YYYY-MM-DD") + `T${timeStr}:00`;
+
+  // Parse datetime string in UTC
+  const utcTime = dayjs.utc(
+    datetimeStr,
+    `${currentDateInUTC.format("YYYY-MM-DD")}THH:mm:ss`,
+  );
+
+  // Convert to the specified timezone
+  const timeInTimezone = utcTime.tz(toTimezone);
+
+  // Return time in "HH:mm" format for the specified timezone
+  return { hours: timeInTimezone.hour(), minutes: timeInTimezone.minute() };
 }

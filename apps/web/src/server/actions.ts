@@ -1,4 +1,4 @@
-import { convertTimeToTargetTimezone } from "@/lib/utils";
+import { convertTimeToUTC } from "@/lib/utils";
 import { db } from "./db";
 
 export async function updatePreferredTime(userId: number, formData: FormData) {
@@ -6,11 +6,7 @@ export async function updatePreferredTime(userId: number, formData: FormData) {
   const preferredTime = formData.get("preferredTime") as string; // in format HH:mm
   const timezone = formData.get("timezone") as string;
   // convert hours and minute to UTC
-  const { hours, minutes } = convertTimeToTargetTimezone(
-    preferredTime,
-    "UTC",
-    timezone,
-  );
+  const { hours, minutes } = convertTimeToUTC(preferredTime, timezone);
   await db.user.update({
     where: { id: userId },
     data: {
